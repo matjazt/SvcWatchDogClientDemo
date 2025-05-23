@@ -33,7 +33,7 @@ def simulate_external_wd() -> int:
     """
 
     shutdown_event_name = "shutDownEvent"
-    os.environ["SHUTDOWN_EVENT"] = shutdown_event_name + "HAHA"
+    os.environ["SHUTDOWN_EVENT"] = shutdown_event_name
     os.environ["WATCHDOG_SECRET"] = "rubbish"
     os.environ["WATCHDOG_PORT"] = "12345"
 
