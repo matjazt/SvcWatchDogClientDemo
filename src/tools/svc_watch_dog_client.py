@@ -33,6 +33,7 @@ class SvcWatchDogClient:
     # configuration
     _enabled: bool = True
     _udp_ping_interval: int = 0  # in milliseconds
+    _time_skew_recovery_interval: int = 0  # in milliseconds
     _shutdown_event: str = ""
     _watchdog_secret: bytes = bytes()
     _udp_port: int = 0
@@ -45,6 +46,7 @@ class SvcWatchDogClient:
 
         cls._enabled = ini.get_bool(cls.SECTION, "Enabled", True)
         cls._udp_ping_interval = ini.get_int(cls.SECTION, "UdpPingInterval", 10) * 1000
+        cls._time_skew_recovery_interval = ini.get_int(cls.SECTION, "TimeSkewRecoveryInterval", 60) * 1000
 
         if cls._stopped:
             # clean up so we can start again later if needed (mostly for testing purposes)
@@ -177,6 +179,9 @@ class SvcWatchDogClient:
         logging.debug("starting")
         try:
 
+            time_skew_recovery_time = 0
+            expected_loop_time = gen_tools.steady_time()
+
             while not cls._stopped:
 
                 #  Check all tasks
@@ -185,6 +190,17 @@ class SvcWatchDogClient:
                 udp_ping_needed = False
 
                 with cls._lock:
+
+                    # detect if time changes unexpectedly, most likely when computer wakes up from sleep mode or hibernation.
+                    if time_skew_recovery_time < now:
+                        if (expected_loop_time + 5000) < now:
+                            logging.info(
+                                f"time skew detected, ignoring timeouts for the next {int(cls._time_skew_recovery_interval/1000)} seconds")
+                            time_skew_recovery_time = now + cls._time_skew_recovery_interval
+                        elif time_skew_recovery_time > 0:
+                            time_skew_recovery_time = 0
+                            logging.info("TimeSkewRecoveryInterval is over, monitoring timeouts normally")
+
                     cls._next_check = cls.DISTANT_FUTURE
 
                     # create a copy of the task names to allow modifying the collection while iterating
@@ -203,7 +219,7 @@ class SvcWatchDogClient:
                                 if not timeout_detected:
                                     timeout = cls._tasks[cls._udp_ping_task_name] = now + cls._udp_ping_interval
                                     udp_ping_needed = True
-                            elif name not in cls._timed_out_tasks:
+                            elif now > time_skew_recovery_time and name not in cls._timed_out_tasks:
                                 # A new timed-out task has been detected
                                 cls._timed_out_tasks.add(name)
                                 timeout_detected = True
@@ -229,6 +245,7 @@ class SvcWatchDogClient:
                 # Wait for the next timeout or a trigger, with a 50 ms buffer to avoid premature detection attempts
                 # 60 seconds maximum is just a safety measure, as well as 100 ms minimum.
                 waitTime = min(max(cls._next_check - now + 50, 100) / 1000.0, 60.0)
+                expected_loop_time = now + int(waitTime * 1000)
 
                 if cls._trigger.wait(waitTime):
                     cls._trigger.clear()
