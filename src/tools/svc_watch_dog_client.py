@@ -39,7 +39,7 @@ class SvcWatchDogClient:
     _udp_port: int = 0
 
     @classmethod
-    def initialize(cls,  ini: Optional["GenIni"] = None) -> None:
+    def initialize(cls, ini: Optional[GenIni] = None) -> None:
 
         if ini is None:
             ini = GenIni.get_default_instance()

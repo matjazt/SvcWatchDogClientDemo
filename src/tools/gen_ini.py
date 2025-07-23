@@ -7,7 +7,7 @@ import os
 import threading
 from typing import Optional
 
-import tools.gen_tools as gen_tools
+from tools import gen_tools
 
 
 class GenIni:
@@ -31,23 +31,23 @@ class GenIni:
 
     @classmethod
     def get_default_instance(cls) -> "GenIni":
-        """get_instance returns pointer to the last initialized GenIni object
+        """get_default_instance returns pointer to the last initialized GenIni object
         In most cases there is only one such object initialized during the life cycle of a program
         (== singleton), so get_instance fits exactly into this concept."""
 
         with cls._lock:
             if cls._instance is None:
-                cls._instance = cls()
+                raise RuntimeError("GenIni default instance not set")
             return cls._instance
 
     @classmethod
     def set_default_instance(cls, obj: "GenIni"):
-        """set_instance sets the default GenIni instance"""
+        """set_default_instance sets the default GenIni instance"""
 
         with cls._lock:
             cls._instance = obj
 
-    def __init__(self, file_name: Optional[str] = None, do_load=True):
+    def __init__(self, file_name: Optional[str] = None, do_load: bool = True):
 
         # main data: dict of dicts of lists (section->key->valueIndex).
         # Sections and keys are both lower case.
@@ -111,7 +111,7 @@ class GenIni:
             self._default_values = dict()
             section_name = None
 
-            load_errors = list()
+            load_errors: list[str] = list()
 
             # section = None - zakaj ?
 
@@ -169,7 +169,7 @@ class GenIni:
 
             return True
 
-    def _store_default_value(self, section: str, key: str, value):
+    def _store_default_value(self, section: str, key: str, value: object):
         if value is not None:
             self._default_values["[%s]/%s" % (section, key)] = value
 
@@ -213,7 +213,7 @@ class GenIni:
         with self._cs:
             return self._file_name
 
-    def add_section(self, section):
+    def add_section(self, section: str):
         """Add a new section."""
         section = section.lower()
         with self._cs:
@@ -225,7 +225,7 @@ class GenIni:
         with self._cs:
             return list(self._data.keys())
 
-    def add_key(self, section: str, key: str, value):
+    def add_key(self, section: str, key: str, value: object) -> object:
         """Add a new value to any section."""
 
         section = section.lower()
@@ -249,12 +249,11 @@ class GenIni:
                 if key in s:
                     del s[key]
 
-    def add_or_update_key(self, section: str, key: str, value):
+    def add_or_update_key(self, section: str, key: str, value: object):
         """Add a new value to any section or update an existing one"""
 
-        value = str(value)
         self.delete_key(section, key)
-        self.add_key(section, key, value)
+        self.add_key(section, key, str(value))
 
     def _get_value(self, section: str, key: str, value_index: int):
         with self._cs:

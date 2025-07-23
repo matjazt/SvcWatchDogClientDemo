@@ -65,7 +65,7 @@ class DummyThread:
                 self._auto_ping()
 
                 # NOTE: this is the place where you would do your periodic tasks
-                logging.info("doing nothing")
+                logging.info("doing nothing, except testing some unicode characters: šđčćžŠĐČĆŽ")
 
                 # wait for the next iteration or for the trigger
                 if self._trigger.wait(10):

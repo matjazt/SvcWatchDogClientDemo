@@ -10,8 +10,6 @@ from typing import Optional
 
 from tools.gen_ini import GenIni
 
-# TODO: add support for buffered email delivery of logs
-
 
 class CustomRotatingFileHandler(RotatingFileHandler):
     # Custom RotatingFileHandler that calls cleanup on rollover
@@ -34,7 +32,7 @@ class LogTools:
     _max_old_files: int = 0
 
     @staticmethod
-    def timestamp_namer(filename):
+    def timestamp_namer(filename: str) -> str:
         timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
         # strip off the numeric extension (typically .1 because we're setting backupCount=1)
         (root, extension) = os.path.splitext(filename)

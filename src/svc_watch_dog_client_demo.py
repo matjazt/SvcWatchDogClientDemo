@@ -5,9 +5,11 @@
 import logging
 import os
 
+from tools.crypto_tools import CryptoTools
 import tools.gen_tools as gen_tools
 from dummy_thread import DummyThread
 from tools.gen_ini import GenIni
+from tools.log_email import LogEmailHandler
 from tools.log_tools import LogTools
 from tools.svc_watch_dog_client import SvcWatchDogClient
 
@@ -20,12 +22,16 @@ class Main:
 
     def __init__(self):
         """main()"""
-        self._ini = GenIni.get_default_instance()
+        GenIni()
+        self._ini = GenIni()
+        GenIni.set_default_instance(self._ini)
 
     def initialize(self):
         """initialize everything"""
         self._ini.open("etc/SvcWatchDogClientDemo.ini")
         LogTools.initialize()
+        CryptoTools.set_default_instance(CryptoTools("yLCJt6ZcPVvILzwgQRKh"))
+        LogEmailHandler.configure_all_handlers()
         logging.info("running in base folder: " + os.getcwd())
         SvcWatchDogClient.initialize(self._ini)
         SvcWatchDogClient.ping(Main.TASK_NAME, 15)
@@ -74,3 +80,5 @@ main = Main()
 main.initialize()
 main.main_loop()
 main.shutdown()
+
+# CryptoTools.self_test()

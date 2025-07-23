@@ -2,7 +2,9 @@
 """various generic tools"""
 import os
 import smtplib
+import sys
 import time
+import socket
 from typing import Optional
 
 
@@ -16,7 +18,7 @@ def send_mail(sender: str, recipients: str, smtp_server: str, timeout: float, co
             " ", "").split(","), contents.encode("utf8"))
 
 
-def show_menu(title, items):
+def show_menu(title: str, items: dict[str, str]):
     """show console menu"""
     print(
         f"\n{str(title).capitalize()}\n--------------------------------------------")
@@ -96,3 +98,12 @@ def empty_if_none(s: Optional[str]) -> str:
     Returns empty string if s is None, otherwise returns s.
     """
     return "" if s is None else s
+
+
+def get_program_name() -> str:
+    filename = os.path.basename(sys.argv[0])
+    return os.path.splitext(filename)[0]
+
+
+def get_computer_name() -> str:
+    return socket.gethostname()
