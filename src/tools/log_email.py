@@ -12,27 +12,25 @@ import threading
 
 class LogEmailHandler(logging.Handler):
 
-    _section: str = "LogEmail"
     _lock = threading.RLock()
     _timer: threading.Timer | None = None
     _first_log_time: datetime | None = None
-    _maxLogs: int = 0
-    _maxDelay: int = 0
+    _max_logs: int = 0
+    _max_delay: int = 0
     _buffer: list[str] = []
     _closing: bool = False
 
-    def __init__(self, ini: GenIni | None = None, section: str | None = None):
+    def __init__(self, section: str, ini: GenIni | None = None):
         super().__init__()
+
+        self._section = section
 
         self._ini = ini if ini else GenIni.get_default_instance()
 
-        if section:
-            self._section = section
+        self._max_logs = self._ini.get_int(self._section, "max_logs", 1000)
+        self._max_delay = self._ini.get_int(self._section, "max_delay", 300)
 
-        self._maxLogs = self._ini.get_int(self._section, "MaxLogs", 1000)
-        self._maxDelay = self._ini.get_int(self._section, "MaxDelay", 300)
-
-        minimum_log_level = self._ini.get_int(self._section, "MinimumLogLevel", 0)  # Default to everything
+        minimum_log_level = self._ini.get_int(self._section, "minimum_log_level", 0)  # Default to everything
         self.setLevel(minimum_log_level)
 
     def emit(self, record: logging.LogRecord):
@@ -45,12 +43,12 @@ class LogEmailHandler(logging.Handler):
                 self._first_log_time = datetime.now()
                 self._start_timer()
 
-            if len(self._buffer) >= self._maxLogs:
+            if len(self._buffer) >= self._max_logs:
                 self._flush()
 
     def _start_timer(self):
         if not self._closing:
-            self._timer = threading.Timer(self._maxDelay, self._flush)
+            self._timer = threading.Timer(self._max_delay, self._flush)
             self._timer.start()
 
     def _flush(self):
@@ -72,15 +70,15 @@ class LogEmailHandler(logging.Handler):
 
         subject = self._ini.get_string(self._section, "Subject", gen_tools.get_program_name() +
                                        " @ " + gen_tools.get_computer_name())
-        to = [addr.strip() for addr in self._ini.get_string(self._section, "To", "").split(",")]
+        recipients = [addr.strip() for addr in self._ini.get_string(self._section, "recipients", "").split(",")]
 
         email_sender = EmailSender(self._section, self._ini)
 
-        if not to or not email_sender.is_configured():
+        if not recipients or not email_sender.is_configured():
             logging.warning(f"not all email parameters are set in section {self._section}, email will not be sent")
             return
 
-        email_sender.send_email(subject, message, to)
+        email_sender.send_email(subject, message, recipients)
 
     def close(self):
         # note: this method is called when the handler is removed from the logger. It can be called multiple times.
@@ -101,12 +99,12 @@ class LogEmailHandler(logging.Handler):
 
         sections = ini.get_sections()
         for section in sections:
-            if section.startswith("logemail") and \
-                    ini.get_optional_string(section, "To") and \
+            if section.startswith("log_email") and \
+                    ini.get_optional_string(section, "recipients") and \
                     ini.get_optional_string(section, "Host") and \
-                    ini.get_optional_string(section, "DefaultSourceAddress"):
+                    ini.get_optional_string(section, "default_source_address"):
 
                 logging.debug(f"configuring email handler for section {section}")
-                email_handler = LogEmailHandler(ini, section)
+                email_handler = LogEmailHandler(section, ini)
                 email_handler.setFormatter(root_logger.handlers[0].formatter)
                 root_logger.addHandler(email_handler)

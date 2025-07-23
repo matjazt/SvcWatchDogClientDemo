@@ -44,9 +44,9 @@ class SvcWatchDogClient:
         if ini is None:
             ini = GenIni.get_default_instance()
 
-        cls._enabled = ini.get_bool(cls.SECTION, "Enabled", True)
-        cls._udp_ping_interval = ini.get_int(cls.SECTION, "UdpPingInterval", 10) * 1000
-        cls._time_skew_recovery_interval = ini.get_int(cls.SECTION, "TimeSkewRecoveryInterval", 60) * 1000
+        cls._enabled = ini.get_bool(cls.SECTION, "enabled", True)
+        cls._udp_ping_interval = ini.get_int(cls.SECTION, "udp_ping_interval", 10) * 1000
+        cls._time_skew_recovery_interval = ini.get_int(cls.SECTION, "time_skew_recovery_interval", 60) * 1000
 
         if cls._stopped:
             # clean up so we can start again later if needed (mostly for testing purposes)

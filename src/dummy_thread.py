@@ -19,7 +19,7 @@ class DummyThread:
     The conditional pinging feature is useful for testing the watchdog service without needing to modify the code. In normal operation, the pinging should be enabled
     and non-conditional.
     """
-    SECTION: str = "DummyThread"
+    SECTION: str = "dummy_thread"
     TASK_NAME: str = "DummyThreadLoop"
     LOOP_DELAY: int = 10  # seconds
 
@@ -79,5 +79,5 @@ class DummyThread:
 
     def _auto_ping(self) -> None:
         """auto ping the watchdog"""
-        if self._ini.get_bool(self.SECTION, "PingEnabled", True):
+        if self._ini.get_bool(self.SECTION, "ping_enabled", True):
             SvcWatchDogClient.ping(self.TASK_NAME, self.LOOP_DELAY * 2)

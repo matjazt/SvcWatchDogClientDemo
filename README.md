@@ -35,7 +35,7 @@ Installation steps (**Admin credentials required**):
 
 ## How to test
 
-Once the service runs, you can experiment with the `PingEnabled` parameter in the `DummyThread` section of the configuration file (`etc/SvcWatchDogClientDemo.ini`).
+Once the service runs, you can experiment with the `ping_enabled` parameter in the `dummy_thread` section of the configuration file (`etc/SvcWatchDogClientDemo.ini`).
 
 Both this demo and **SvcWatchDog** generate detailed log files, which you are encouraged to review.
 

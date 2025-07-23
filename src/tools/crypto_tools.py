@@ -18,7 +18,7 @@ class CryptoTools:
     _lock = threading.RLock()
     _instance = None
 
-    _section: str = "CryptoTools"
+    _section: str = "crypto_tools"
     _cs: threading.RLock
 
     @classmethod
@@ -50,10 +50,10 @@ class CryptoTools:
             self._section = section
 
         password = default_password
-        passwordFile = ini.get_optional_string(self._section, "PasswordFile")
-        if passwordFile:
+        password_file = ini.get_optional_string(self._section, "password_file")
+        if password_file:
             try:
-                contents = gen_tools.read_text_file(passwordFile)
+                contents = gen_tools.read_text_file(password_file)
                 if contents:
                     # ignore the supplied default password if the file is present
                     password = ''.join(c for c in contents if 32 < ord(c) <= 127)

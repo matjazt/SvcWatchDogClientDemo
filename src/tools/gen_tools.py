@@ -31,18 +31,18 @@ def show_menu(title: str, items: dict[str, str]):
     print("--------------------------------------------")
 
 
-def read_text_file(filename: str, default_contents: Optional[str] = None, encoding: str = "utf-8-sig") -> Optional[str]:
+def read_text_file(file_name: str, default_contents: Optional[str] = None, encoding: str = "utf-8-sig") -> Optional[str]:
     """read text file if possible, return string contents or specified default"""
-    if not os.path.isfile(filename):
+    if not os.path.isfile(file_name):
         return default_contents
-    with open(filename, "r", encoding=encoding) as h:
+    with open(file_name, "r", encoding=encoding) as h:
         return h.read()
         # return "".join(all_lines)
 
 
-def store_text_file(filename: str, contents: str, encoding: str = "utf-8-sig") -> None:
+def store_text_file(file_name: str, contents: str, encoding: str = "utf-8-sig") -> None:
     """store text to the file (overwrite it or create a new one)"""
-    with open(filename, "w", encoding=encoding) as h:
+    with open(file_name, "w", encoding=encoding) as h:
         h.write(contents)
 
 
@@ -101,8 +101,8 @@ def empty_if_none(s: Optional[str]) -> str:
 
 
 def get_program_name() -> str:
-    filename = os.path.basename(sys.argv[0])
-    return os.path.splitext(filename)[0]
+    file_name = os.path.basename(sys.argv[0])
+    return os.path.splitext(file_name)[0]
 
 
 def get_computer_name() -> str:
