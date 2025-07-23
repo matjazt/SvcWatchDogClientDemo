@@ -28,7 +28,10 @@ class Main:
 
     def initialize(self):
         """initialize everything"""
-        self._ini.open("etc/SvcWatchDogClientDemo.ini")
+        gen_tools.set_program_name("SvcWatchDogClientDemo")
+
+        self._ini.open(f"etc/{gen_tools.get_program_name()}.ini")
+
         LogTools.initialize()
         CryptoTools.set_default_instance(CryptoTools("yLCJt6ZcPVvILzwgQRKh"))
         LogEmailHandler.configure_all_handlers()

@@ -100,7 +100,22 @@ def empty_if_none(s: Optional[str]) -> str:
     return "" if s is None else s
 
 
+_program_name: str = ""
+
+
+def set_program_name(name: str) -> None:
+    """
+    Sets the program name, which is used in various places, such as logging.
+    """
+    global _program_name
+    _program_name = name
+
+
 def get_program_name() -> str:
+    global _program_name
+    if _program_name:
+        return _program_name
+
     file_name = os.path.basename(sys.argv[0])
     return os.path.splitext(file_name)[0]
 
