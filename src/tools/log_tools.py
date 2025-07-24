@@ -6,7 +6,6 @@ import inspect
 import logging
 import os
 from logging.handlers import RotatingFileHandler
-from typing import Optional
 
 from tools.gen_ini import GenIni
 
@@ -52,7 +51,7 @@ class LogTools:
         return target_file_name
 
     @classmethod
-    def initialize(cls, ini: Optional["GenIni"] = None) -> None:
+    def initialize(cls, ini: "GenIni | None" = None) -> None:
         """Initialize logging configuration."""
 
         if ini is None:

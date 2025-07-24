@@ -2,7 +2,6 @@
 
 import logging
 import threading
-from typing import Optional
 
 from tools.gen_ini import GenIni
 from tools.svc_watch_dog_client import SvcWatchDogClient
@@ -24,7 +23,7 @@ class DummyThread:
     LOOP_DELAY: int = 10  # seconds
 
     # runtime
-    _background_loop_thread: Optional[threading.Thread]
+    _background_loop_thread: threading.Thread | None
     _trigger: threading.Event  # Event to trigger the background loop
     _stopped: bool
     _ini: "GenIni"
@@ -32,7 +31,7 @@ class DummyThread:
     # configuration
     _ping_enabled: bool = True
 
-    def initialize(self,  ini: Optional["GenIni"] = None) -> None:
+    def initialize(self,  ini: "GenIni | None" = None) -> None:
         self._trigger = threading.Event()
         self._ini = ini if ini is not None else GenIni.get_default_instance()
         self._auto_ping()

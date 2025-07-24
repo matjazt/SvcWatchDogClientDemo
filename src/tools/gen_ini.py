@@ -5,7 +5,6 @@ Generic INI file tools
 
 import os
 import threading
-from typing import Optional
 
 from tools import gen_tools
 
@@ -23,8 +22,8 @@ class GenIni:
     _lock = threading.RLock()
     _instance = None
 
-    _file_name: Optional[str]
-    _file_timestamp: Optional[float]
+    _file_name: str | None
+    _file_timestamp: float | None
     _data: dict[str, dict[str, list[str]]]
     _default_values: dict[str, object]
     _cs: threading.RLock
@@ -47,7 +46,7 @@ class GenIni:
         with cls._lock:
             cls._instance = obj
 
-    def __init__(self, file_name: Optional[str] = None, do_load: bool = True):
+    def __init__(self, file_name: str | None = None, do_load: bool = True):
 
         # main data: dict of dicts of lists (section->key->valueIndex).
         # Sections and keys are both lower case.
@@ -67,7 +66,7 @@ class GenIni:
     def __repr__(self):
         return f"{self.__class__.__name__}({self._file_name})"
 
-    def save(self, file_name: Optional[str] = None):
+    def save(self, file_name: str | None = None):
         """Store INI file; WARNING: comments will not be stored"""
         with self._cs:
             if file_name is None:
@@ -208,7 +207,7 @@ class GenIni:
 
         return buf
 
-    def get_file_name(self) -> Optional[str]:
+    def get_file_name(self) -> str | None:
         """get the file name of the INI file"""
         with self._cs:
             return self._file_name
@@ -270,7 +269,7 @@ class GenIni:
             except:
                 return list()
 
-    def get_optional_string(self, section: str, key: str, default_value: Optional[str] = None, value_index: int = 0) -> Optional[str]:
+    def get_optional_string(self, section: str, key: str, default_value: str | None = None, value_index: int = 0) -> str | None:
         """Return the key value as string, or default value if the key is not present"""
         section = section.lower()
         key = key.lower()
@@ -288,7 +287,7 @@ class GenIni:
         """Return the key value as string, or default value if the key is not present"""
         return self.get_optional_string(section, key, default_value, value_index)  # type: ignore
 
-    def get_optional_int(self, section: str, key: str, default_value: Optional[int] = None, value_index: int = 0) -> Optional[int]:
+    def get_optional_int(self, section: str, key: str, default_value: int | None = None, value_index: int = 0) -> int | None:
         """Return the key value as integer, or default value if the key is not present or if it's not an integer."""
         section = section.lower()
         key = key.lower()
@@ -307,7 +306,7 @@ class GenIni:
         """Return the key value as integer, or default value if the key is not present or if it's not an integer."""
         return self.get_optional_int(section, key, default_value, value_index)  # type: ignore
 
-    def get_optional_float(self, section: str, key: str, default_value: Optional[float] = None, value_index: int = 0) -> Optional[float]:
+    def get_optional_float(self, section: str, key: str, default_value: float | None = None, value_index: int = 0) -> float | None:
         """Return the key value as float, or default value if the key is not present or if it's not a float."""
         section = section.lower()
         key = key.lower()

@@ -6,7 +6,6 @@ import socket
 import threading
 import time
 import uuid
-from typing import Optional
 
 import win32api
 import win32event
@@ -22,7 +21,7 @@ class SvcWatchDogClient:
 
     # runtime
     _lock = threading.RLock()
-    _background_loop_thread: Optional[threading.Thread] = None
+    _background_loop_thread: threading.Thread | None = None
     _trigger = threading.Event()  # Event to trigger the background loop
     _next_check: int = DISTANT_FUTURE
     _stopped: bool = False
@@ -39,7 +38,7 @@ class SvcWatchDogClient:
     _udp_port: int = 0
 
     @classmethod
-    def initialize(cls, ini: Optional[GenIni] = None) -> None:
+    def initialize(cls, ini: GenIni | None = None) -> None:
 
         if ini is None:
             ini = GenIni.get_default_instance()

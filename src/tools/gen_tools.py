@@ -5,7 +5,6 @@ import smtplib
 import sys
 import time
 import socket
-from typing import Optional
 
 
 def send_mail(sender: str, recipients: str, smtp_server: str, timeout: float, contents: str) -> None:
@@ -31,7 +30,7 @@ def show_menu(title: str, items: dict[str, str]):
     print("--------------------------------------------")
 
 
-def read_text_file(file_name: str, default_contents: Optional[str] = None, encoding: str = "utf-8-sig") -> Optional[str]:
+def read_text_file(file_name: str, default_contents: str | None = None, encoding: str = "utf-8-sig") -> str | None:
     """read text file if possible, return string contents or specified default"""
     if not os.path.isfile(file_name):
         return default_contents
@@ -93,7 +92,7 @@ def steady_time() -> int:
     return round(time.monotonic() * 1000)
 
 
-def empty_if_none(s: Optional[str]) -> str:
+def empty_if_none(s: str | None) -> str:
     """
     Returns empty string if s is None, otherwise returns s.
     """
