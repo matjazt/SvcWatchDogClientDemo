@@ -12,26 +12,21 @@ import threading
 
 class LogEmailHandler(logging.Handler):
 
-    _lock = threading.RLock()
-    _timer: threading.Timer | None = None
-    _first_log_time: datetime | None = None
-    _max_logs: int = 0
-    _max_delay: int = 0
-    _buffer: list[str] = []
-    _closing: bool = False
-
     def __init__(self, section: str, ini: GenIni | None = None):
         super().__init__()
 
-        self._section = section
+        self._lock = threading.RLock()
+        self._timer: threading.Timer | None = None
+        self._first_log_time: datetime | None = None
+        self._buffer: list[str] = []
+        self._closing: bool = False
 
+        self._section = section
         self._ini = ini if ini else GenIni.get_default_instance()
 
         self._max_logs = self._ini.get_int(self._section, "max_logs", 1000)
         self._max_delay = self._ini.get_int(self._section, "max_delay", 300)
-
-        minimum_log_level = self._ini.get_int(self._section, "minimum_log_level", 0)  # Default to everything
-        self.setLevel(minimum_log_level)
+        self.setLevel(self._ini.get_int(self._section, "minimum_log_level", 0))  # Default to 0 /everything
 
     def emit(self, record: logging.LogRecord):
         if self._closing or record.module == "email_sender":

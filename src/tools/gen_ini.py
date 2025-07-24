@@ -22,12 +22,6 @@ class GenIni:
     _lock = threading.RLock()
     _instance = None
 
-    _file_name: str | None
-    _file_timestamp: float | None
-    _data: dict[str, dict[str, list[str]]]
-    _default_values: dict[str, object]
-    _cs: threading.RLock
-
     @classmethod
     def get_default_instance(cls) -> "GenIni":
         """get_default_instance returns pointer to the last initialized GenIni object

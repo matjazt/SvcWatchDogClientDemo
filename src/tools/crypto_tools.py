@@ -18,9 +18,6 @@ class CryptoTools:
     _lock = threading.RLock()
     _instance = None
 
-    _section: str = "crypto_tools"
-    _cs: threading.RLock
-
     @classmethod
     def get_default_instance(cls) -> "CryptoTools":
         """get_default_instance returns pointer to the last initialized CryptoTools object
@@ -46,8 +43,7 @@ class CryptoTools:
         if ini is None:
             ini = GenIni.get_default_instance()
 
-        if section:
-            self._section = section
+        self._section = section if section else "crypto_tools"
 
         password = default_password
         password_file = ini.get_optional_string(self._section, "password_file")

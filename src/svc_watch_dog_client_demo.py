@@ -17,25 +17,21 @@ from tools.svc_watch_dog_client import SvcWatchDogClient
 class Main:
 
     TASK_NAME: str = "mainLoop"
-    _dummy_thread: "DummyThread"
-    _ini: "GenIni"
 
     def __init__(self):
-        """main()"""
-        GenIni()
         self._ini = GenIni()
         GenIni.set_default_instance(self._ini)
+        self._dummy_thread: DummyThread | None = None
 
     def initialize(self):
-        """initialize everything"""
         gen_tools.set_program_name("SvcWatchDogClientDemo")
-
         self._ini.open(f"etc/{gen_tools.get_program_name()}.ini")
 
         LogTools.initialize()
         CryptoTools.set_default_instance(CryptoTools("yLCJt6ZcPVvILzwgQRKh"))
         LogEmailHandler.configure_all_handlers()
         logging.info("running in base folder: " + os.getcwd())
+
         SvcWatchDogClient.initialize(self._ini)
         SvcWatchDogClient.ping(Main.TASK_NAME, 15)
         SvcWatchDogClient.start()
@@ -72,16 +68,18 @@ class Main:
 
     def shutdown(self):
         """shut down everything"""
-        self._dummy_thread.stop()
+        if self._dummy_thread:
+            self._dummy_thread.stop()
         SvcWatchDogClient.stop()
         logging.shutdown()
 
 
-gen_tools.cd_to_app_base_folder()
+if __name__ == "__main__":
+    gen_tools.cd_to_app_base_folder()
 
-main = Main()
-main.initialize()
-main.main_loop()
-main.shutdown()
+    main = Main()
+    main.initialize()
+    main.main_loop()
+    main.shutdown()
 
 # CryptoTools.self_test()
