@@ -258,9 +258,6 @@ class SvcWatchDogClient:
 
 class TimeoutDetector:
 
-    _name: str
-    _closed: bool
-
     def __init__(self, name: str, timeout_seconds: int, name_postfix: bool = True):
         self._closed = False
         if name_postfix:
