@@ -1,26 +1,30 @@
 ﻿# -*-coding:utf-8
 """various generic tools"""
 import os
+import re
 import smtplib
 import sys
 import time
 import socket
 
 
-def send_mail(sender: str, recipients: str, smtp_server: str, timeout: float, contents: str) -> None:
-    """send email"""
-    # print(f"sender={sender}, recipients={recipients}, smtp_server={smtp_server}, timeout={timeout}:\n{contents}\n")
-
-    with smtplib.SMTP(timeout=timeout) as server:
-        server.connect(smtp_server)
-        server.sendmail(sender, recipients.replace(
-            " ", "").split(","), contents.encode("utf8"))
+# Utility types and classes
+# -------------------------------------------------------------------------------
 
 
-def show_menu(title: str, items: dict[str, str]):
+class UserError(Exception):
+    pass
+
+
+# Console tools
+# -------------------------------------------------------------------------------
+
+
+def show_menu(title: str, items: dict[str, str]) -> None:
     """show console menu"""
     print(
         f"\n{str(title).capitalize()}\n--------------------------------------------")
+    print(items)
     m = len(max(items, key=len))
 
     for cmd in items.keys():
@@ -28,6 +32,50 @@ def show_menu(title: str, items: dict[str, str]):
 
     print(f" %{m}s - quit" % "q")
     print("--------------------------------------------")
+
+
+def show_important_message(message: str) -> None:
+    m = len(message) + 2
+    separator = "-" * m
+    print("\n" + separator)
+    print(" " + message)
+    print(separator + "\n")
+
+
+def select_entry(title: str, items: dict[str, str], allow_no_input: bool = False) -> str | None:
+    """show console menu, request user to select an entry, return selected key or None if no input was given and allow_no_input was set"""
+    print(f"\n {title}:")
+
+    m = len(max(items.keys(), key=len))
+    n = len(max(items.values(), key=len))
+
+    separator = "-" * (m + n + 5)
+
+    print(separator)
+
+    for cmd in items.keys():
+        print(f" %{m}s - %s" % (cmd, items[cmd]))
+
+    print(separator)
+    while True:
+        inp = input("Select an entry: ")
+
+        if inp == "" and allow_no_input:
+            return None
+
+        if inp in items:
+            return inp
+
+        print("Invalid selection, please try again.")
+
+
+# File tools
+# -------------------------------------------------------------------------------
+
+
+def sanitize_filename(name: str) -> str:
+    # Remove characters not safe for filenames
+    return re.sub(r'[<>:"/\\|?*\x00-\x1F]', '', name)
 
 
 def read_text_file(file_name: str, default_contents: str | None = None, encoding: str = "utf-8-sig") -> str | None:
@@ -43,6 +91,10 @@ def store_text_file(file_name: str, contents: str, encoding: str = "utf-8-sig") 
     """store text to the file (overwrite it or create a new one)"""
     with open(file_name, "w", encoding=encoding) as h:
         h.write(contents)
+
+
+# String tools
+# -------------------------------------------------------------------------------
 
 
 def snake_to_camel(s: str) -> str:
@@ -62,6 +114,17 @@ def string_length_check(s: str, min_length: int, max_length: int) -> bool:
     """
     l = len(s)
     return l >= min_length and l <= max_length
+
+
+def empty_if_none(s: str | None) -> str:
+    """
+    Returns empty string if s is None, otherwise returns s.
+    """
+    return "" if s is None else s
+
+
+# application and OS tools
+# -------------------------------------------------------------------------------
 
 
 def get_app_base_folder() -> str:
@@ -92,13 +155,6 @@ def steady_time() -> int:
     return round(time.monotonic() * 1000)
 
 
-def empty_if_none(s: str | None) -> str:
-    """
-    Returns empty string if s is None, otherwise returns s.
-    """
-    return "" if s is None else s
-
-
 _program_name: str = ""
 
 
@@ -121,3 +177,16 @@ def get_program_name() -> str:
 
 def get_computer_name() -> str:
     return socket.gethostname()
+
+
+# email tools
+# -------------------------------------------------------------------------------
+
+def send_mail(sender: str, recipients: str, smtp_server: str, timeout: float, contents: str) -> None:
+    """send email"""
+    # print(f"sender={sender}, recipients={recipients}, smtp_server={smtp_server}, timeout={timeout}:\n{contents}\n")
+
+    with smtplib.SMTP(timeout=timeout) as server:
+        server.connect(smtp_server)
+        server.sendmail(sender, recipients.replace(
+            " ", "").split(","), contents.encode("utf8"))

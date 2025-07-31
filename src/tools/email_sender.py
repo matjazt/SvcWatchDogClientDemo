@@ -21,11 +21,12 @@ class EmailSender:
         self._ini = ini if ini else GenIni.get_default_instance()
         self._cryptoTools = cryptoTools if cryptoTools else CryptoTools.get_default_instance()
 
-        self._default_source_address = self._ini.get_string(self._section, "default_source_address", "")
-        self._host = self._ini.get_string(self._section, "host", "")
+        self._default_source_address = self._cryptoTools.get_possibly_encrypted_configuration_string(
+            self._section, "default_source_address", None) or ""
+        self._host = self._cryptoTools.get_possibly_encrypted_configuration_string(self._section, "host", None) or ""
         self._port = self._ini.get_int(self._section, "port", 25)
         self._timeout = self._ini.get_int(self._section, "timeout", 60)
-        self._user_name = self._ini.get_optional_string(self._section, "user_name")
+        self._user_name = self._cryptoTools.get_possibly_encrypted_configuration_string(self._section, "user_name", None)
         self._password = self._cryptoTools.get_possibly_encrypted_configuration_string(self._section, "password", None)
         self._tls_mode = TlsMode[self._ini.get_string(self._section, "tls_mode", TlsMode.DISABLED.name).upper()]
 
